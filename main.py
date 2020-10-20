@@ -3,6 +3,8 @@ from scapy.all import *
 import time
 import logging
 import matplotlib
+import csv
+
 
 logger = logging.getLogger("scapy")
 logger.setLevel(logging.INFO)
@@ -54,6 +56,38 @@ def sniff_interface(interface,count=20):
 	print( "-----------------------------------------------\n")
 
 
+def os_fingerprinting_load():
+	
+	results = []
+	
+	with open("os ttl.csv") as csvfile:
+	
+		reader = csv.reader(csvfile)
+	
+		for row in reader: # each row is a list
+	
+			if 'ICMP' in row[2]:
+	
+				results.append((row[0] + row[1],int(row[3])))
+	
+	return results		
+
+def os_fingerprinting(ttl,db_os_fingerprinting):
+	
+	for row in db_os_fingerprinting:
+		
+		if row[1]== ttl:
+
+			return 'The Operative System is: '+row[0]
+
+
+def send_ICMP(ip):
+
+	ans = sr1(IP(dst=ip)/ICMP()/"XXXXXXXXXXX")
+
+	return ans.ttl
+
+
 
 # function that return mac adress through ip adress
 def get_mac(ip): 
@@ -75,7 +109,7 @@ def scan_host_network():
 	ans,unans=srp(Ether(dst="ff:ff:ff:ff:ff:ff")/ARP(pdst="192.168.178.0/24"),
 		timeout=2)
 	
-	return ans
+	return ans.nsummary()
 
 def scan_udp(host):
 	
@@ -93,9 +127,12 @@ def scan_port_host(ip_host,first_port,ultime_port):
 
 def main():
 	interface = os.listdir('/sys/class/net/')
-	
-	while True:
-		sniff_interface(interface,40)
+	db_os_fingerprinting=os_fingerprinting_load()
+	#while True:
+	print(scan_host_network())
+		#sniff_interface(interface,40)
+	#print(send_ICMP('192.168.178.30'))
+	print(os_fingerprinting(send_ICMP('192.168.178.30'),db_os_fingerprinting))
 		#print(ls(ARP))
 		#scan_port_host('192.168.178.1',80,80)
 		#print(get_mac('192.168.178.1'))
