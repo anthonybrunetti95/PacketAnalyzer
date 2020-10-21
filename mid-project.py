@@ -35,7 +35,7 @@ p = sr(IP(dst="192.168.178.1")/TCP(dport=[21,22,23,80]),inter=0.5,retry=-2,timeo
 #TCP SYN
 sr1(IP(dst="192.168.178.1")/TCP(dport=80,flags="S"))
 
-x = send(IP(dst="192.168.178.20")/TCP(dport=80,flags="S"),count=10)
+ans,unans = srloop(IP(dst="192.168.178.30")/TCP(dport=80,flags="S"),count=10)
 #udp
 
 
