@@ -45,4 +45,4 @@ scan of open ports via a function report_ports() function integrated scapy
 
 Function dection_syn_flood
 this function collects all TCP packets containing the SYN fag. And it will produce a list with all hosts making the most TCP-SYN requests. This check is used to check for suspicious activity and indications of TCP-SYN packets. To have an efficient control system on SYN flood attacks, it is necessary to check the time between requests and the other of the same ip address. Average all requests from clients to the server.
-(Reference https://securitylab.disi.unitn.it/lib/exe/fetch.php?media=teaching:netsec:2016:netseclab_-_t2g5.pdf page 36 chapter 3.3  Mitigation Methods)
+(Reference  page 36 chapter 3.3  Mitigation Methods)

