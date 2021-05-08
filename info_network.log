@@ -1,0 +1,59 @@
+INFO:
+
+INFO:attack syn flood
+INFO:Thu Oct 22 14:25:05 2020
+INFO:
+
+INFO:attack syn flood
+INFO:Thu Oct 22 14:26:12 2020
+INFO:
+
+INFO:attack syn flood
+INFO:Thu Oct 22 14:27:14 2020
+INFO:
+
+INFO:attack syn flood
+INFO:Thu Oct 22 14:30:10 2020
+INFO:
+
+INFO:Dection syn-flood
+INFO:Thu Oct 22 14:33:55 2020
+INFO:
+
+INFO:Dection syn-flood
+INFO:Thu Oct 22 14:34:04 2020
+INFO:
+192.168.178.50	: 14
+3.83.69.237	: 1
+78.108.119.152	: 1
+162.159.129.233	: 18
+162.159.128.235	: 1
+
+INFO:
+
+INFO:Dection syn-flood
+INFO:Thu Oct 22 14:40:34 2020
+INFO:
+
+INFO:
+
+INFO:Dection syn-flood
+INFO:Thu Oct 22 14:42:36 2020
+INFO:
+192.168.178.50	: 1
+
+INFO:
+
+INFO:Dection syn-flood
+INFO:Thu Oct 22 14:54:54 2020
+INFO:
+
+INFO:
+
+INFO:Os fingerprinting ICMP
+INFO:Thu Oct 22 14:58:41 2020
+INFO:The Operative System is: Unix/Linux
+INFO:
+
+INFO:Os fingerprinting ICMP
+INFO:Thu Oct 22 14:59:14 2020
